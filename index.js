@@ -28,6 +28,9 @@ const init = async () => {
         console.error("Fel vid anslutning till databasen: " + error); // Felmeddelande vid misslyckad anslutning
     });
 
+    // Routes
+    require("./routes/product.route")(server);
+
     await server.start();
     console.log('Server startad på %s', server.info.uri); // loggar serverns URI
 };
