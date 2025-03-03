@@ -1,39 +1,39 @@
 const Product = require("../models/product.model");
 
-// Controller för att hämta alla produkter
+// Controller för att hämta alla produkter (böcker)
 exports.getAllproducts = async (request, h) => {
     try {
-        const products = await Product.find(); // Hämtar alla produkter
+        const products = await Product.find(); // Hämtar alla böcker
 
         if (products.length === 0) { // Om det inte finns någon data
             return h.response({
                 statusCode: 404,
                 error: "Not Found",
-                message: "Inga produkter hittades.",
+                message: "Inga böcker hittades.",
             }).code(404);
         }
 
-        return h.response(products).code(200); // Om det finns data, returnera listan med alla produkter
+        return h.response(products).code(200); // Om det finns data, returnera listan med alla böcker
     } catch (error) {
-        console.error("Fel vid hämtning av produkter:", error);
+        console.error("Fel vid hämtning av böcker:", error);
         return h.response({
-            message: "Kunde inte hämta produkter, försök igen senare.",
+            message: "Kunde inte hämta böcker, försök igen senare.",
             error: error.message,
         }).code(500); // Felmeddelande 500
     }
 };
 
-// Controller för att hämta en produkt
+// Controller för att hämta en produkt/bok
 exports.getOneProduct = async (request, h) => {
     try {
         const product = await Product.findById(request.params.id);
-        return product || h.response("Produkten med det angivna ID:et hittades inte").code(404);
+        return product || h.response("Boken med det angivna ID:et hittades inte").code(404);
     } catch (err) {
         return h.response(err).code(500);
     }
 };
 
-// Controller för att lägga till en ny produkt
+// Controller för att lägga till en ny produkt/bok
 exports.postNewProduct = async (request, h) => {
     try {
         // Skapar en ny resa
@@ -43,7 +43,7 @@ exports.postNewProduct = async (request, h) => {
         // Bekräftelsemeddelande
         return h.response({
             statusCode: 201,
-            message: "En ny produkt har lagts till.",
+            message: "En ny bok har lagts till.",
             addedProduct: savedProduct // Returnerar den nya produkten
         }).code(201);
     } catch (err) {
@@ -56,26 +56,26 @@ exports.postNewProduct = async (request, h) => {
     } 
 };
 
-// Controller för att uppdatera en produkt
+// Controller för att uppdatera en produkt/bok
 exports.updateOneProduct = async (request, h) => {
     try {
         const updatedProduct = await Product.findByIdAndUpdate(
-            request.params.id, // ID på produkten som ska uppdateras
+            request.params.id, // ID på boken som ska uppdateras
             request.payload, // Den nya datan som skickats
-            { new: true } // Returnera den uppdaterade produkten
+            { new: true } // Returnera den uppdaterade boken
         );
 
         if (!updatedProduct) {
             return h.response({
                 statusCode: 404,
                 error: "Not Found",
-                message: "Produkten med det angivna ID:et hittades inte." // Om produkten ej hittas
+                message: "Boken med det angivna ID:et hittades inte." // Om boken ej hittas
             }).code(404);
         }
 
         return h.response({
             statusCode: 200,
-            message: "Produkten har uppdaterats.", // Bekräftelsemeddelande om uppdateringen lyckas
+            message: "Boken har uppdaterats.", // Bekräftelsemeddelande om uppdateringen lyckas
             updatedProduct
         }).code(200);
     } catch (err) {
@@ -88,19 +88,19 @@ exports.updateOneProduct = async (request, h) => {
     }
 };
 
-// Controller för att radera en produkt
+// Controller för att radera en produkt/bok
 exports.deleteOneProduct = async (request, h) => {
     try {
-        // Tar bort produkten baserat på ID
+        // Tar bort boken baserat på ID
         const product = await Product.findByIdAndDelete(request.params.id);
 
-        // Om produkten inte hittas
+        // Om boken inte hittas
         if (!product) {
             return h.response({
                 statusCode: 404,
                 error: "Not Found",
                 // Skickar anpassat felmeddelande
-                message: "Produkten med det angivna ID:et hittades inte."
+                message: "Boken med det angivna ID:et hittades inte."
             }).code(404);
         }
 
@@ -108,7 +108,7 @@ exports.deleteOneProduct = async (request, h) => {
         return h.response({
             statusCode: 200,
             // Skickar bekräftelsemeddelande
-            message: "Produkten har raderats.",
+            message: "Boken har raderats.",
             deletedProduct: product
         }).code(200);
 
