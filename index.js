@@ -3,6 +3,7 @@
 const Hapi = require('@hapi/hapi'); // Importerar ramverket Hapi
 const Mongoose = require("mongoose"); // Importerar mongoose för databasen
 require("dotenv").config(); // dotenv för att läsa in variabler från .env-filen
+const auth = require("./auth");
 
 // Initierar servern
 const init = async () => {
@@ -28,6 +29,9 @@ const init = async () => {
         console.error("Fel vid anslutning till databasen: " + error); // Felmeddelande vid misslyckad anslutning
     });
 
+    // Registera autentisering 
+    await auth.register(server);
+    
     // Routes
     require("./routes/product.route")(server);
 
