@@ -34,6 +34,7 @@ const init = async () => {
     
     // Routes
     require("./routes/product.route")(server);
+    require("./routes/user.route")(server);
 
     await server.start();
     console.log('Server startad på %s', server.info.uri); // loggar serverns URI

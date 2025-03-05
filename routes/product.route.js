@@ -9,8 +9,8 @@ module.exports = (server) => {
             path: "/products",
             handler: productController.getAllproducts,
             options: {
-                auth: false
-            }
+                auth: false,
+            },
         },
         // GET, hämtar en produkt från tabellen med avgivet id
         {
@@ -18,26 +18,35 @@ module.exports = (server) => {
             path: "/products/{id}",
             handler: productController.getOneProduct,
             options: {
-                auth: false
-            }
+                auth: false,
+            },
         },
         // POST-route, lägger till data (produkt) till tabellen
         {
             method: "POST",
             path: "/products",
-            handler: productController.postNewProduct
+            handler: productController.postNewProduct,
+            options: {
+                auth: false
+            }
         },
         // PUT-route, uppdaterar data (en produkt) med angivet id
         {
             method: "PUT",
             path: "/products/{id}",
-            handler: productController.updateOneProduct
+            handler: productController.updateOneProduct,
+            options: {
+                auth: false
+            }
         },
         // DELETE-route, raderar en produkt i tabellen med angivet id
         {
             method: "DELETE",
             path: "/products/{id}",
-            handler: productController.deleteOneProduct
+            handler: productController.deleteOneProduct,
+            options: {
+                auth: false
+            }
         }
     ]);
 };

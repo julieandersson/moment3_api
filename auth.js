@@ -24,8 +24,10 @@ module.exports = {
                     const token = session; // hämta token
 
                     if (!token) {
+                        console.warn("Ingen token hittades.")
                         return { isValid: false };
                     }
+                    // decode och verifiering av jwttoken
                     const artifacts = Jwt.token.decode(token);
 
                     try {
@@ -38,12 +40,14 @@ module.exports = {
                             isValid: true,
                             credentials: artifacts.decoded.payload
                         };
+                        // fel vid verifiering
                     } catch (err) {
-                        console.error('Token verification error:', err);
+                        console.error('Fel vid token-verifiering:', err.message);
                         return { isValid: false };
                     }
                 } catch (err) {
-                    console.error('Validation error:', err);
+                    // fel vid validering
+                    console.error('Valideringsfel:', err.message);
                     return { isValid: false };
                 }
             }
