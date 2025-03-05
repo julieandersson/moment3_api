@@ -3,14 +3,20 @@ const mongoose = require("mongoose");
 
 // Controller för att hämta alla produkter (böcker)
 exports.getAllproducts = async (request, h) => {
+
     // sökfunktion
     const { search } = request.query;
+
     let query = {}; // tomt som standard
 
     if (search) {
-        query = { model: { $regex: search, $options: "i" } }; // filtrering
-    }
-
+        query = { 
+            $or: [
+                { title: { $regex: search, $options: "i" } },
+                { author: { $regex: search, $options: "i" } } // om search finns - filtrera
+            ]
+    };
+}
     try {
         const products = await Product.find(query, { _v: 0 }); // Hämtar alla böcker
 
