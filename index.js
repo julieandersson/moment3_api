@@ -10,7 +10,7 @@ const init = async () => {
 
     // Hapi-server
     const server = Hapi.server({
-        port: process.env.PORT || 5000, // port 5000
+        port: process.env.PORT || 3000, // port 5000
         host: '0.0.0.0', // lyssnar på ipadress
         routes: {
             cors: {

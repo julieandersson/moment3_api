@@ -47,16 +47,22 @@ exports.createUser = async (request, h) => {
     }
 };
 
-// Hämta alla användare (full CRUD)
+// Hämta alla användare
 exports.getAllUsers = async (request, h) => {
     try {
         const users = await User.find();
+
+        if (users.length === 0) {
+            return h.response({ message: "Inga användare hittades." }).code(404);
+        }
+
         return h.response(users).code(200);
     } catch (error) {
         console.error("Något gick fel vid hämtning av användare: ", error);
         return h.response(error).code(500);
     }
 };
+
 
 // Hämta en specifik användare baserat på ID
 exports.getUserById = async (request, h) => {
@@ -82,20 +88,30 @@ exports.getUserById = async (request, h) => {
     }
 };
 
-// Uppdatera en användare
+// Uppdatera en användare (utan att tillåta ändring av lösenord)
 exports.updateUser = async (request, h) => {
     try {
         const { id } = request.params;
 
-        // kontrollera om ID:t är giltigt
+        // kontrollerar om ID:t är giltigt
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return h.response({ message: "Ogiltigt ID-format" }).code(400);
+            return h.response({ message: "Ogiltigt ID-format." }).code(400);
+        }
+
+        // tar bort lösenord från payload
+        if ("password" in request.payload) {
+            delete request.payload.password;
         }
 
         const updatedUser = await User.findByIdAndUpdate(
             id,
             request.payload,
-            { new: true, runValidators: true, select: "-password" } // Exkludera lösenord
+            {
+                new: true,
+                runValidators: true,
+                context: "query",
+                select: "-password"
+            }
         );
 
         if (!updatedUser) {
@@ -107,6 +123,14 @@ exports.updateUser = async (request, h) => {
             user: updatedUser
         }).code(200);
     } catch (error) {
+        if (error.name === "ValidationError") {
+            const errors = {};
+            for (let field in error.errors) {
+                errors[field] = error.errors[field].message;
+            }
+            return h.response({ errors }).code(400);
+        }
+
         console.error("Fel vid uppdatering av användare: ", error);
         return h.response({ message: "Internt serverfel." }).code(500);
     }

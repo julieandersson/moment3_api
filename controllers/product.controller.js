@@ -1,92 +1,91 @@
 const Product = require("../models/product.model");
 const mongoose = require("mongoose");
 
-// Controller för att hämta alla produkter (böcker)
+// Controller för att hämta alla hudvårdsprodukter
 exports.getAllproducts = async (request, h) => {
 
     // sökfunktion
     const { search } = request.query;
-
     let query = {}; // tomt som standard
 
     if (search) {
-        query = { 
+        query = {
             $or: [
-                { title: { $regex: search, $options: "i" } },
-                { author: { $regex: search, $options: "i" } } // om search finns - filtrera
+                { name: { $regex: search, $options: "i" } },
+                { brand: { $regex: search, $options: "i" } } // om search finns, filtrera
             ]
-    };
-}
+        };
+    }
+
     try {
-        const products = await Product.find(query, { _v: 0 }); // Hämtar alla böcker
+        const products = await Product.find(query, { _v: 0 }); // hämtar alla produkter
 
         if (products.length === 0) {
-            return h.response({ message: "Inga böcker hittades." }).code(404);
+            return h.response({ message: "Inga hudvårdsprodukter hittades." }).code(404);
         }
 
         return h.response(products).code(200);
     } catch (error) {
-        console.error("Fel vid hämtning av böcker.");
+        console.error("Fel vid hämtning av produkter: ", error);
         return h.response(error).code(500);
     }
 };
 
-// Controller för att hämta en produkt/bok
+// Controller för att hämta en specifik hudvårdsprodukt
 exports.getOneProduct = async (request, h) => {
     try {
         const { id } = request.params;
 
         // kontrollera om ID:t är giltigt
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return h.response({ message: "Ogiltigt ID-format" }).code(400);
+            return h.response({ message: "Ogiltigt ID-format." }).code(400);
         }
 
         const product = await Product.findById(id);
 
         // kontrollera att produkten finns
         if (!product) {
-            return h.response({ message: "Boken med det angivna ID:t hittades inte." }).code(404);
+            return h.response({ message: "Produkten med det angivna ID:t hittades inte." }).code(404);
         }
 
         return h.response(product).code(200);
     } catch (error) {
-        console.error("Något gick fel vid hämtning av boken: ", error);
+        console.error("Något gick fel vid hämtning av produkten: ", error);
         return h.response({ message: "Internt serverfel." }).code(500);
     }
 };
 
-// Controller för att lägga till en ny produkt/bok
+// Controller för att lägga till en ny hudvårdsprodukt
 exports.postNewProduct = async (request, h) => {
     try {
-        // Skapar/lägger till en ny bok
         const product = new Product(request.payload);
-        const savedProduct = await product.save(); // Sparar bok
+        const savedProduct = await product.save(); // sparar produkt
 
         return h.response({
-            message: "En ny bok har lagts till.",
+            message: "En ny hudvårdsprodukt har lagts till.",
             addedProduct: savedProduct
         }).code(201);
     } catch (error) {
-        // vid valideringsfel 
+        // vid valideringsfel
         if (error.name === "ValidationError") {
-            // samlar in Mongoose-valideringsfel och returnerar
+            // samlar in Mongoose-valideringsfel och returnerar 
             const errors = {};
             for (let field in error.errors) {
                 errors[field] = error.errors[field].message;
             }
             return h.response({ errors }).code(400);
         }
-        console.error("Något gick fel vid skapande av ny bok: ", error);
+        console.error("Något gick fel vid skapande av ny produkt: ", error);
         return h.response(error).code(500);
     }
 };
 
-// Controller för att uppdatera en produkt/bok
+// Controller för att uppdatera en hudvårdsprodukt
 exports.updateOneProduct = async (request, h) => {
     try {
         const { id } = request.params;
 
-        // kontrollera om ID är giltigt
+        // kontrollera om ID:t är giltigt
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return h.response({ message: "Ogiltigt ID-format." }).code(400);
         }
@@ -94,44 +93,53 @@ exports.updateOneProduct = async (request, h) => {
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
             request.payload,
-            { new: true, runValidators: true } // valideringar körs
+            { new: true, runValidators: true } // kör validering
         );
 
         if (!updatedProduct) {
             return h.response({
-                message: "Boken med det angivna ID:et hittades inte."
+                message: "Produkten med det angivna ID:t hittades inte."
             }).code(404);
         }
 
         return h.response({
-            message: "Boken har uppdaterats.",
+            message: "Produkten har uppdaterats.",
             updatedProduct
         }).code(200);
     } catch (error) {
+        // fångar mongoose-valideringsfel
+        if (error.name === "ValidationError") {
+            const errors = {};
+            for (let field in error.errors) {
+                errors[field] = error.errors[field].message;
+            }
+            return h.response({ errors }).code(400);
+        }
+
         console.error("Ett oväntat fel inträffade vid uppdatering: ", error);
         return h.response({ message: "Internt serverfel." }).code(500);
     }
 };
 
-// Controller för att radera en produkt/bok
+// Controller för att radera en hudvårdsprodukt
 exports.deleteOneProduct = async (request, h) => {
     try {
         const { id } = request.params;
 
         // kontrollera om ID:t är giltigt
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return h.response({ message: "Ogiltigt ID-format" }).code(400);
+            return h.response({ message: "Ogiltigt ID-format." }).code(400);
         }
 
         const deletedProduct = await Product.findByIdAndDelete(id);
 
         if (!deletedProduct) {
-            return h.response({ message: "Boken med det angivna ID:t hittades inte." }).code(404);
+            return h.response({ message: "Produkten med det angivna ID:t hittades inte." }).code(404);
         }
 
-        return h.response({ message: "Boken har raderats." }).code(200);
+        return h.response({ message: "Produkten har raderats." }).code(200);
     } catch (error) {
-        console.error("Något gick fel vid radering av bok: ", error);
+        console.error("Något gick fel vid radering av produkten: ", error);
         return h.response({ message: "Internt serverfel." }).code(500);
     }
 };

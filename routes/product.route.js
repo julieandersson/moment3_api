@@ -25,28 +25,19 @@ module.exports = (server) => {
         {
             method: "POST",
             path: "/products",
-            handler: productController.postNewProduct,
-            options: {
-                auth: false
-            }
+            handler: productController.postNewProduct
         },
         // PUT-route, uppdaterar data (en produkt) med angivet id
         {
             method: "PUT",
             path: "/products/{id}",
             handler: productController.updateOneProduct,
-            options: {
-                auth: false
-            }
         },
         // DELETE-route, raderar en produkt i tabellen med angivet id
         {
             method: "DELETE",
             path: "/products/{id}",
-            handler: productController.deleteOneProduct,
-            options: {
-                auth: false
-            }
+            handler: productController.deleteOneProduct
         }
     ]);
 };

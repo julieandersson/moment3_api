@@ -35,10 +35,7 @@ module.exports = (server) => {
         // GET-route för att logga ut en användare
         method: "GET",
         path: "/users/logout",
-        handler: userController.logoutUser,
-        options: {
-            auth: false
-        }
+        handler: userController.logoutUser
     });
 
     server.route({
