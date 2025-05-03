@@ -175,7 +175,10 @@ exports.loginUser = async (request, h) => {
         }
 
         // genererar token
-        const token = generateToken(user);
+        const token = generateToken({
+            _id: user._id,
+            email: user.email
+        });        
 
         return h.response({
             message: "Inloggning lyckades!",
@@ -200,15 +203,15 @@ exports.logoutUser = async (request, h) => {
 // Kontrollera om användare är inloggad
 exports.checkUser = async (request, h) => {
     try {
-        // kontrollerar autentiserad användare 
         if (!request.auth.isAuthenticated) {
             return h.response({ message: "Användare är inte inloggad." }).code(401);
         }
 
-        // hämtar användarinfo 
-        const user = request.auth.credentials;
+       
+        const { user } = request.auth.credentials;
 
-        return h.response({ message: "Användare är inloggad.", user }).code(200);
+        // returnera användaren direkt
+        return h.response({ user }).code(200);
     } catch (error) {
         console.error("Fel vid kontroll av inloggning: ", error);
         return h.response({ message: error.message }).code(500);
@@ -216,11 +219,11 @@ exports.checkUser = async (request, h) => {
 };
 
 // Funktion för att generera JWT-token 
-const generateToken = user => {
+const generateToken = userPayload => {
     const token = Jwt.token.generate(
-        { user },
+        { user: userPayload },
         { key: process.env.JWT_SECRET_KEY, algorithm: 'HS256' },
-        { ttlSec: 24 * 60 * 60 * 1000 } // giltig i 24 timmar 
+        { ttlSec: 24 * 60 * 60 }
     );
     return token;
 };
